@@ -21,6 +21,8 @@ hotels = [
 def get_hotels(
         id_: int | None = Query(None, description="Айди"),
         title: str | None = Query(None, description="Название отеля"),
+        page: int | None = Query(None),
+        per_page: int | None = Query(None),
 ):
     result = []
     for hotel in hotels:
@@ -29,6 +31,12 @@ def get_hotels(
         if title and hotel["title"] != title:
             continue
         result.append(hotel)
+
+    if page and per_page and result:
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        result = result[start_index:end_index]
+
     return result
 
 
