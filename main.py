@@ -50,9 +50,9 @@ def update_hotel(
         if hotel["id"] == hotel_id:
             hotel["title"] = title
             hotel["name"] = name
-            break
-
-    return {"status": "updated"}
+            return {"status": "updated"}
+    else:
+        return {"message": "Не найден отель"}
 
 
 @app.patch("/hotels/{hotel_id}")
@@ -69,9 +69,9 @@ def update_hotel_partial(
                 hotel["title"] = title
             if name:
                 hotel["name"] = name
-            break
-
-    return {"status": "updated"}
+            return {"status": "updated"}
+    else:
+        return {"message": "Не найден отель"}
 
 
 @app.delete('/hotels/{hotel_id}')
