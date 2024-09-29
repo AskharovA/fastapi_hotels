@@ -4,7 +4,8 @@ from src.models.hotels import HotelsOrm
 from src.schemas.hotels import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, func
+from src.repositories.hotels import HotelsRepository
 
 router = APIRouter(
     prefix='/hotels',
@@ -18,21 +19,14 @@ async def get_hotels(
         title: str | None = Query(None, description="Название отеля"),
         location: str | None = Query(None, description="Локация"),
 ):
-    async with (async_session_maker() as session):
-        query = select(HotelsOrm)
-
-        if title:
-            query = query.filter(HotelsOrm.title.contains(title))
-        if location:
-            query = query.filter(HotelsOrm.location.contains(location))
-        query = (
-            query
-            .limit(pagination.per_page)
-            .offset((pagination.page - 1) * pagination.per_page)
+    per_page = pagination.per_page or 5
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_all(
+            title=title,
+            location=location,
+            limit=per_page,
+            offset=(pagination.page - 1) * per_page,
         )
-        result = await session.execute(query)
-        hotels = result.scalars().all()
-        return hotels
 
 
 @router.post('/')
