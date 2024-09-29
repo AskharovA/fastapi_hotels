@@ -38,16 +38,16 @@ async def get_hotels(
 async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     "1": {"summary": "Сочи", "value": {
         "title": "Отель Сочи 5 звезд у моря",
-        "location": "ул. моря 1",
+        "location": "Сочи, ул. моря 1",
     }},
     "2": {"summary": "Дубай", "value": {
         "title": "Отель Дубай у фонтана",
-        "location": "ул. шейха 2",
+        "location": "Дубай, ул. шейха 2",
     }},
 })):
     async with async_session_maker() as session:
         add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
-        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+        # print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
         await session.execute(add_hotel_stmt)
         await session.commit()
 
