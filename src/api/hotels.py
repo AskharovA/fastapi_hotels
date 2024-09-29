@@ -1,10 +1,8 @@
 from fastapi import Query, APIRouter, Body
 
-from src.models.hotels import HotelsOrm
 from src.schemas.hotels import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
-from src.database import async_session_maker, engine
-from sqlalchemy import insert, select, func
+from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
 
 router = APIRouter(
@@ -61,8 +59,12 @@ async def update_hotel(hotel_id: int, hotel_data: Hotel):
     summary="Частичное обновление данных об отеле",
     description="Частично обновляются данные об отеле"
 )
-def update_hotel_partial(hotel_id: int, hotel_data: HotelPATCH):
-    pass
+async def update_hotel_partial(hotel_id: int, hotel_data: HotelPATCH):
+    async with async_session_maker() as session:
+        await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=hotel_id)
+        await session.commit()
+
+    return {"status": "Успешно обновлено"}
 
 
 @router.delete('/{hotel_id}')
