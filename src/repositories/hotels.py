@@ -24,22 +24,21 @@ class HotelsRepository(BaseRepository):
     ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from=date_from, date_to=date_to)
 
-        hotels = (
-            select(HotelsOrm.id)
-            .select_from(HotelsOrm)
-        )
-
-        if title:
-            hotels = hotels.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
-        if location:
-            hotels = hotels.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
-
-        hotels = hotels.offset(offset).limit(limit)
-
         hotels_ids_to_get = (
             select(RoomsOrm.hotel_id)
             .select_from(RoomsOrm)
-            .filter(RoomsOrm.id.in_(rooms_ids_to_get), RoomsOrm.hotel_id.in_(hotels))
+            .filter(RoomsOrm.id.in_(rooms_ids_to_get))
         )
 
-        return await self.get_filtered(self.model.id.in_(hotels_ids_to_get))
+        query = select(HotelsOrm).filter(HotelsOrm.id.in_(hotels_ids_to_get))
+
+        if title:
+            query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
+        if location:
+            query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+
+        query = query.limit(limit).offset(offset)
+
+        result = await self.session.execute(query)
+
+        return [Hotel.model_validate(hotel, from_attributes=True) for hotel in result.scalars().all()]
