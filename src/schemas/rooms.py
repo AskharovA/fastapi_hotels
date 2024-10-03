@@ -1,12 +1,14 @@
 from pydantic import BaseModel
 
+from src.schemas.facilities import Facility
+
 
 class RoomAddRequest(BaseModel):
     title: str
     description: str | None = None
     price: int
     quantity: int
-    facilities_ids: list[int] | None = None
+    facilities_ids: list[int] = []
 
 
 class RoomAdd(BaseModel):
@@ -26,6 +28,7 @@ class RoomPatchRequest(BaseModel):
     description: str | None = None
     price: int | None = None
     quantity: int | None = None
+    facilities_ids: list[int] = []
 
 
 class RoomPatch(BaseModel):
@@ -34,3 +37,7 @@ class RoomPatch(BaseModel):
     description: str | None = None
     price: int | None = None
     quantity: int | None = None
+
+
+class RoomsWithRels(Room):
+    facilities: list[Facility]

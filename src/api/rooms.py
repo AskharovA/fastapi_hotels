@@ -14,7 +14,7 @@ async def get_rooms(
         date_from: date = Query(example="2024-10-01"),
         date_to: date = Query(example="2024-10-15")
 ):
-    return await db.rooms.get_filtered(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
+    return await db.rooms.get_filtered_by_time(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")
@@ -51,6 +51,11 @@ async def partially_edit_room(
 ):
     _room_data = RoomPatch(hotel_id=hotel_id, **room_data.model_dump(exclude_unset=True))
     await db.rooms.edit(_room_data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
+    _room_data_dict = _room_data.model_dump(exclude_unset=True)
+    if 'facilities_ids' in _room_data_dict:
+        await db.rooms_facilities.edit_room_facilities(
+            room_id=room_id, facilities_ids=_room_data_dict['facilities_ids']
+        )
     await db.commit()
     return {"status": "OK"}
 
