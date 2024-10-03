@@ -33,9 +33,9 @@ class HotelsRepository(BaseRepository):
         query = select(HotelsOrm).filter(HotelsOrm.id.in_(hotels_ids_to_get))
 
         if title:
-            query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
+            query = query.filter(HotelsOrm.title.icontains(title.strip()))
         if location:
-            query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
+            query = query.filter(HotelsOrm.location.icontains(location.strip()))
 
         query = query.limit(limit).offset(offset)
 
