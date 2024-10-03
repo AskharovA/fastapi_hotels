@@ -37,6 +37,7 @@ async def create_room(db: DBDep, hotel_id: int, room_data: RoomAddRequest = Body
 async def edit_room(hotel_id: int, room_id: int, room_data: RoomAddRequest, db: DBDep):
     _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
     await db.rooms.edit(_room_data, id=room_id, hotel_id=hotel_id)
+    await db.rooms_facilities.edit_room_facilities(room_id=room_id, new_facilities=room_data.facilities_ids)
     await db.commit()
     return {"status": "OK"}
 
