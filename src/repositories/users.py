@@ -6,12 +6,13 @@ from sqlalchemy.exc import IntegrityError
 
 from src.repositories.base import BaseRepository
 from src.models.users import UsersOrm
+from src.repositories.mappers.mappers import UserDataMapper
 from src.schemas.users import User, UserWithHashedPassword
 
 
 class UsersRepository(BaseRepository):
     model = UsersOrm
-    schema = User
+    mapper = UserDataMapper
 
     async def add(self, data):
         try:
