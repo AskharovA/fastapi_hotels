@@ -10,7 +10,7 @@ router = APIRouter(prefix='/facilities', tags=['Удобства'])
 
 @router.get("/")
 # @custom_cache_decorator(expire=10)
-# @cache(expire=5)
+@cache(expire=5)
 async def get_facilities(db: DBDep):
     return await db.facilities.get_all()
 

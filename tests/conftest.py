@@ -1,15 +1,19 @@
-import pytest
-import json
-from httpx import AsyncClient
+from unittest import mock
 
-from src.api.dependencies import get_db
-from src.main import app
-from src.config import settings
-from src.database import Base, engine_null_pool, async_session_maker_null_pool
+mock.patch("fastapi_cache.decorator.cache", lambda *a, **kw: lambda f: f).start()
+
+import pytest  # noqa
+import json  # noqa
+from httpx import AsyncClient  # noqa
+
+from src.api.dependencies import get_db  # noqa
+from src.main import app  # noqa
+from src.config import settings  # noqa
+from src.database import Base, engine_null_pool, async_session_maker_null_pool  # noqa
 from src.models import *  # noqa
-from src.schemas.hotels import HotelAdd
-from src.schemas.rooms import RoomAdd
-from src.utils.db_manager import DBManager
+from src.schemas.hotels import HotelAdd  # noqa
+from src.schemas.rooms import RoomAdd  # noqa
+from src.utils.db_manager import DBManager  # noqa
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -29,7 +33,7 @@ async def db() -> DBManager:
         yield db
 
 
-app.dependency_overrides[get_db] = get_db_null_pool
+app.dependency_overrides[get_db] = get_db_null_pool  # noqa
 
 
 @pytest.fixture(scope="session", autouse=True)
