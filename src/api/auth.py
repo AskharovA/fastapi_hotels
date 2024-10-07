@@ -1,9 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, Request
+from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import UserIdDep
-from src.database import async_session_maker
 from src.schemas.users import UserRequestAdd, UserAdd
-from src.repositories.users import UsersRepository
 
 from src.services.auth import AuthService
 from src.api.dependencies import DBDep

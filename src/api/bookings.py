@@ -5,7 +5,7 @@ from src.api.dependencies import DBDep, UserIdDep
 router = APIRouter(prefix='/bookings', tags=['Бронирования'])
 
 
-@router.post('/')
+@router.post("")
 async def add_booking(db: DBDep, booking_data: BookingAddRequest, user_id: UserIdDep):
     room = await db.rooms.get_one_or_none(id=booking_data.room_id)
     room_price: int = room.price
@@ -17,7 +17,7 @@ async def add_booking(db: DBDep, booking_data: BookingAddRequest, user_id: UserI
     return {"status": "OK", "data": booking}
 
 
-@router.get('/')
+@router.get("")
 async def get_all_bookings(db: DBDep):
     return await db.bookings.get_all()
 
