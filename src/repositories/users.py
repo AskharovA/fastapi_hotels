@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from src.repositories.base import BaseRepository
 from src.models.users import UsersOrm
 from src.repositories.mappers.mappers import UserDataMapper
-from src.schemas.users import User, UserWithHashedPassword
+from src.schemas.users import UserWithHashedPassword
 
 
 class UsersRepository(BaseRepository):

@@ -1,19 +1,20 @@
+# ruff: noqa: E402
 from unittest import mock
 
 mock.patch("fastapi_cache.decorator.cache", lambda *a, **kw: lambda f: f).start()
 
-import pytest  # noqa
-import json  # noqa
-from httpx import AsyncClient  # noqa
+import pytest
+import json
+from httpx import AsyncClient
 
-from src.api.dependencies import get_db  # noqa
-from src.main import app  # noqa
-from src.config import settings  # noqa
-from src.database import Base, engine_null_pool, async_session_maker_null_pool  # noqa
-from src.models import *  # noqa
-from src.schemas.hotels import HotelAdd  # noqa
-from src.schemas.rooms import RoomAdd  # noqa
-from src.utils.db_manager import DBManager  # noqa
+from src.api.dependencies import get_db
+from src.main import app
+from src.config import settings
+from src.database import Base, engine_null_pool, async_session_maker_null_pool
+from src.models import *  # noqa: F403
+from src.schemas.hotels import HotelAdd
+from src.schemas.rooms import RoomAdd
+from src.utils.db_manager import DBManager
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -46,7 +47,9 @@ async def setup_database(check_test_mode):
 @pytest.fixture(scope="session", autouse=True)
 async def add_data(setup_database):
     with open("tests/mock_hotels.json", encoding="utf-8") as hotels_json:
-        hotels_data = [HotelAdd.model_validate(hotel) for hotel in json.load(hotels_json)]
+        hotels_data = [
+            HotelAdd.model_validate(hotel) for hotel in json.load(hotels_json)
+        ]
     with open("tests/mock_rooms.json", encoding="utf-8") as rooms_json:
         rooms_data = [RoomAdd.model_validate(room) for room in json.load(rooms_json)]
 
@@ -64,23 +67,11 @@ async def ac() -> AsyncClient:
 
 @pytest.fixture(scope="session", autouse=True)
 async def register_user(ac, add_data):
-    await ac.post(
-        "/auth/register",
-        json={
-            "email": "kot@pes.com",
-            "password": "1234"
-        }
-    )
+    await ac.post("/auth/register", json={"email": "kot@pes.com", "password": "1234"})
 
 
 @pytest.fixture(scope="session")
 async def authenticated_ac(register_user, ac):
-    await ac.post(
-        "/auth/login",
-        json={
-            "email": "kot@pes.com",
-            "password": "1234"
-        }
-    )
+    await ac.post("/auth/login", json={"email": "kot@pes.com", "password": "1234"})
     assert ac.cookies["access_token"]
     yield ac

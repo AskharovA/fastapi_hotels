@@ -14,13 +14,13 @@ class HotelsRepository(BaseRepository):
     mapper = HotelDataMapper
 
     async def get_filtered_by_time(
-            self,
-            date_from: date,
-            date_to: date,
-            title: str,
-            location: str,
-            limit: int,
-            offset: int
+        self,
+        date_from: date,
+        date_to: date,
+        title: str,
+        location: str,
+        limit: int,
+        offset: int,
     ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from=date_from, date_to=date_to)
 
@@ -41,4 +41,6 @@ class HotelsRepository(BaseRepository):
 
         result = await self.session.execute(query)
 
-        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
+        return [
+            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
+        ]

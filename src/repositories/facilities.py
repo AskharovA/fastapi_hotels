@@ -15,7 +15,9 @@ class RoomsFacilitiesRepository(BaseRepository):
     model = RoomsFacilitiesOrm
     schema = RoomFacility
 
-    async def edit_room_facilities(self, room_id: int, new_facilities: list[int]) -> None:
+    async def edit_room_facilities(
+        self, room_id: int, new_facilities: list[int]
+    ) -> None:
         room_facilities = await self.session.execute(
             select(self.model.facility_id).filter_by(room_id=room_id)
         )
@@ -32,6 +34,11 @@ class RoomsFacilitiesRepository(BaseRepository):
                 .filter_by(room_id=room_id)
             )
         if to_add:
-            await self.session.execute(insert(self.model).values(
-                [RoomFacilityAdd(room_id=room_id, facility_id=f_id).model_dump() for f_id in to_add]
-            ))
+            await self.session.execute(
+                insert(self.model).values(
+                    [
+                        RoomFacilityAdd(room_id=room_id, facility_id=f_id).model_dump()
+                        for f_id in to_add
+                    ]
+                )
+            )

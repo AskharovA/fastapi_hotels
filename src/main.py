@@ -36,5 +36,5 @@ app.include_router(router_bookings)
 app.include_router(router_facilities)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

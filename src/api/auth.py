@@ -9,10 +9,8 @@ from src.api.dependencies import DBDep
 router = APIRouter(prefix="/auth", tags=["Авторизация и Аутентификация"])
 
 
-@router.post('/register')
-async def register(
-        data: UserRequestAdd, db: DBDep
-):
+@router.post("/register")
+async def register(data: UserRequestAdd, db: DBDep):
     hashed_password = AuthService.hash_password(password=data.password)
     new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
     await db.users.add(new_user_data)
@@ -21,12 +19,8 @@ async def register(
     return {"status": "OK"}
 
 
-@router.post('/login')
-async def login_user(
-        data: UserRequestAdd,
-        response: Response,
-        db: DBDep
-):
+@router.post("/login")
+async def login_user(data: UserRequestAdd, response: Response, db: DBDep):
     user = await db.users.get_user_with_hashed_password(email=data.email)
     if not user:
         raise HTTPException(status_code=401, detail="Пользователь не зарегистрирован")
@@ -37,18 +31,13 @@ async def login_user(
     return {"access_token": access_token}
 
 
-@router.get('/me')
-async def get_me(
-        user_id: UserIdDep,
-        db: DBDep
-):
+@router.get("/me")
+async def get_me(user_id: UserIdDep, db: DBDep):
     user = await db.users.get_one_or_none(id=user_id)
     return user
 
 
-@router.delete('/logout')
-async def logout(
-        response: Response
-):
+@router.delete("/logout")
+async def logout(response: Response):
     response.delete_cookie("access_token")
     return {"status": "OK"}

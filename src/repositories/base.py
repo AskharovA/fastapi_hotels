@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
 
+from src.exceptions import ObjectNotFoundException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -13,13 +14,11 @@ class BaseRepository:
         self.session = session
 
     async def get_filtered(self, *filter_, **filter_by):
-        query = (
-            select(self.model)
-            .filter(*filter_)
-            .filter_by(**filter_by)
-        )
+        query = select(self.model).filter(*filter_).filter_by(**filter_by)
         result = await self.session.execute(query)
-        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
+        return [
+            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
+        ]
 
     async def get_all(self, *args, **kwargs):
         return await self.get_filtered()
@@ -32,8 +31,16 @@ class BaseRepository:
             return None
         return self.mapper.map_to_domain_entity(model)
 
+    async def get_one(self, **filter_by):
+        result = await self.get_one_or_none(**filter_by)
+        if result is None:
+            raise ObjectNotFoundException
+        return result
+
     async def add(self, data: BaseModel):
-        add_object_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
+        add_object_stmt = (
+            insert(self.model).values(**data.model_dump()).returning(self.model)
+        )
         new_object = await self.session.execute(add_object_stmt)
         model = new_object.scalars().one()
         return self.mapper.map_to_domain_entity(model)
@@ -42,7 +49,9 @@ class BaseRepository:
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
         await self.session.execute(add_data_stmt)
 
-    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
+    async def edit(
+        self, data: BaseModel, exclude_unset: bool = False, **filter_by
+    ) -> None:
         # await self.check_objects_count(**filter_by)
 
         update_stmt = (
@@ -63,6 +72,8 @@ class BaseRepository:
         result_count = len(result.scalars().all())
 
         if result_count > 1:
-            raise HTTPException(status_code=422, detail="Найдено больше одного объектов")
+            raise HTTPException(
+                status_code=422, detail="Найдено больше одного объектов"
+            )
         elif result_count == 0:
             raise HTTPException(status_code=404, detail="Не найдено ни одного объекта")
