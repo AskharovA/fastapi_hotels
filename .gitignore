@@ -2,5 +2,4 @@ venv/
 .idea
 __pycache__
 .env
-.test.env
 celerybeat-schedule.db
