@@ -17,19 +17,25 @@ async def test_auth(email, password, status_code, ac):
     )
     assert response.status_code == status_code
 
-    if response.json().get("status", None) == "OK":
-        await ac.post(
-            "/auth/login",
-            json=user_data
-        )
-        assert ac.cookies["access_token"]
+    if response.status_code != 200:
+        return
 
-        response = await ac.get("/auth/me")
-        assert response.json()["email"] == email
+    await ac.post(
+        "/auth/login",
+        json=user_data
+    )
+    assert ac.cookies["access_token"]
 
-        response = await ac.delete("/auth/logout")
-        assert response.json()["status"] == "OK"
-        assert ac.cookies.get("access_token", None) is None
+    response = await ac.get("/auth/me")
+    user_data = response.json()
+    assert user_data["email"] == email
+    assert "id" in user_data
+    assert "password" not in user_data
+    assert "hashed_password" not in user_data
 
-        response = await ac.get("/auth/me")
-        assert response.status_code == 401
+    response = await ac.delete("/auth/logout")
+    assert response.json()["status"] == "OK"
+    assert ac.cookies.get("access_token", None) is None
+
+    response = await ac.get("/auth/me")
+    assert response.status_code == 401
