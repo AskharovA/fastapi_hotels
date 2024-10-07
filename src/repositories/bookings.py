@@ -23,12 +23,13 @@ class BookingsRepository(BaseRepository):
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(booking) for booking in result.scalars().all()]
 
-    async def add_booking(self, data: BaseModel):
+    async def add_booking(self, data: BaseModel, hotel_id):
         result = await self.session.execute(rooms_ids_for_booking(
             date_from=data.date_from,
             date_to=data.date_to,
+            hotel_id=hotel_id,
         ))
-        rooms_ids = result.scalars().all()
+        rooms_ids: list[int] = result.scalars().all()
         if data.room_id not in rooms_ids:
             raise HTTPException(status_code=401, detail="Нет свободных номеров")
 
