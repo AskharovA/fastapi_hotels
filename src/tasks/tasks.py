@@ -1,3 +1,4 @@
+import logging
 import asyncio
 import os
 from PIL import Image
@@ -9,6 +10,7 @@ from src.utils.db_manager import DBManager
 
 @celery_instance.task
 def resize_image(image_path: str):
+    logging.debug(f"Resizing {image_path=}")
     sizes = [1000, 500, 200]
     output_folder = "src/static/images"
 
@@ -25,12 +27,13 @@ def resize_image(image_path: str):
         output_path = os.path.join(output_folder, new_file_name)
         img_resized.save(output_path)
 
+    logging.info(f"Image saved {sizes=} {output_folder=}")
+
 
 async def get_bookings_with_today_checkin_helper():
-    print("Я ЗАПУСКАЮСЬ")
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        print(f"{bookings=}")
+        logging.debug(f"{bookings=}")
 
 
 @celery_instance.task(name="booking_today_checkin")

@@ -1,8 +1,10 @@
-from fastapi import HTTPException
+import logging
+from asyncpg import UniqueViolationError
 from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 
-from src.exceptions import ObjectNotFoundException
+from src.exceptions import ObjectNotFoundException, ObjectAlreadyExistsException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -38,12 +40,20 @@ class BaseRepository:
         return result
 
     async def add(self, data: BaseModel):
-        add_object_stmt = (
-            insert(self.model).values(**data.model_dump()).returning(self.model)
-        )
-        new_object = await self.session.execute(add_object_stmt)
-        model = new_object.scalars().one()
-        return self.mapper.map_to_domain_entity(model)
+        try:
+            add_object_stmt = (
+                insert(self.model).values(**data.model_dump()).returning(self.model)
+            )
+            new_object = await self.session.execute(add_object_stmt)
+            model = new_object.scalars().one()
+            return self.mapper.map_to_domain_entity(model)
+        except IntegrityError as ex:
+            logging.exception(f"Не удалось добавить данные в БД, входные данные={data}")
+            if isinstance(ex.orig.__cause__, UniqueViolationError):
+                raise ObjectAlreadyExistsException from ex
+            else:
+                logging.exception(f"Незнакомая ошибка: не удалось добавить данные в БД, входные данные={data}")
+                raise ex
 
     async def add_bulk(self, data: list[BaseModel]):
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
@@ -52,8 +62,6 @@ class BaseRepository:
     async def edit(
         self, data: BaseModel, exclude_unset: bool = False, **filter_by
     ) -> None:
-        await self.check_objects_count(**filter_by)
-
         update_stmt = (
             update(self.model)
             .filter_by(**filter_by)
@@ -62,18 +70,5 @@ class BaseRepository:
         await self.session.execute(update_stmt)
 
     async def delete(self, **filter_by) -> None:
-        await self.check_objects_count(**filter_by)
-
         delete_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_stmt)
-
-    async def check_objects_count(self, **filter_by) -> None:
-        result = await self.session.execute(select(self.model).filter_by(**filter_by))
-        result_count = len(result.scalars().all())
-
-        # if result_count > 1:
-        #     raise HTTPException(
-        #         status_code=422, detail="Найдено больше одного объектов"
-        #     )
-        if result_count == 0:
-            raise ObjectNotFoundException

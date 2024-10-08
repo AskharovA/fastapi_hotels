@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from src.exceptions import ObjectNotFoundException, AllRoomsAreBookedException, IncorrectDatesRequestException
+from src.exceptions import ObjectNotFoundException, AllRoomsAreBookedException, check_date_to_after_date_from
 from src.schemas.bookings import BookingAddRequest, BookingAdd
 from src.api.dependencies import DBDep, UserIdDep
 
@@ -9,6 +9,7 @@ router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 @router.post("")
 async def add_booking(db: DBDep, booking_data: BookingAddRequest, user_id: UserIdDep):
+    check_date_to_after_date_from(booking_data.date_from, booking_data.date_to)
     try:
         room = await db.rooms.get_one(id=booking_data.room_id)
     except ObjectNotFoundException:
@@ -27,8 +28,6 @@ async def add_booking(db: DBDep, booking_data: BookingAddRequest, user_id: UserI
         booking = await db.bookings.add_booking(_booking_data, hotel_id=hotel.id)
     except AllRoomsAreBookedException as e:
         raise HTTPException(status_code=409, detail=e.detail)
-    except IncorrectDatesRequestException as e:
-        raise HTTPException(status_code=400, detail=e.detail)
     except ObjectNotFoundException:
         raise HTTPException(status_code=404, detail="Отеля не существует")
     await db.commit()
