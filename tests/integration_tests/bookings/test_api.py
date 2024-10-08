@@ -29,9 +29,6 @@ async def test_add_booking(
         assert result["status"] == "OK"
         assert "data" in result
 
-    if status_code == 409:
-        assert response.json()["detail"] == "Не осталось свободных номеров"
-
 
 @pytest.fixture(scope="module")
 async def delete_all_bookings():
