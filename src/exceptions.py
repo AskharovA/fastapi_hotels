@@ -11,3 +11,11 @@ class ObjectNotFoundException(MyException):
 
 class AllRoomsAreBookedException(MyException):
     detail = "Не осталось свободных номеров"
+
+
+class UserAlreadyExistsException(MyException):
+    detail = "Пользователь уже существует"
+
+
+class IncorrectDatesRequestException(MyException):
+    detail = "Дата выезда позже даты заезда"

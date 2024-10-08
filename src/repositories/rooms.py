@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import select
 
+from src.exceptions import ObjectNotFoundException
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsDataWithRelsMapper
@@ -35,5 +36,5 @@ class RoomsRepository(BaseRepository):
         )
         model = room.scalars().one_or_none()
         if model is None:
-            return None
+            raise ObjectNotFoundException
         return RoomsDataWithRelsMapper.map_to_domain_entity(model)

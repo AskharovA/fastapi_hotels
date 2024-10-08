@@ -52,7 +52,7 @@ class BaseRepository:
     async def edit(
         self, data: BaseModel, exclude_unset: bool = False, **filter_by
     ) -> None:
-        # await self.check_objects_count(**filter_by)
+        await self.check_objects_count(**filter_by)
 
         update_stmt = (
             update(self.model)
@@ -62,7 +62,7 @@ class BaseRepository:
         await self.session.execute(update_stmt)
 
     async def delete(self, **filter_by) -> None:
-        # await self.check_objects_count(**filter_by)
+        await self.check_objects_count(**filter_by)
 
         delete_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_stmt)
@@ -71,9 +71,9 @@ class BaseRepository:
         result = await self.session.execute(select(self.model).filter_by(**filter_by))
         result_count = len(result.scalars().all())
 
-        if result_count > 1:
-            raise HTTPException(
-                status_code=422, detail="Найдено больше одного объектов"
-            )
-        elif result_count == 0:
-            raise HTTPException(status_code=404, detail="Не найдено ни одного объекта")
+        # if result_count > 1:
+        #     raise HTTPException(
+        #         status_code=422, detail="Найдено больше одного объектов"
+        #     )
+        if result_count == 0:
+            raise ObjectNotFoundException

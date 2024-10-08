@@ -11,6 +11,7 @@ import pytest
         (1, "2024-08-05", "2024-08-14", 200),
         (1, "2024-08-06", "2024-08-15", 409),
         (1, "2024-08-17", "2024-08-25", 200),
+        (1, "2024-08-17", "2024-08-16", 400),
     ],
 )
 async def test_add_booking(
@@ -66,4 +67,3 @@ async def test_add_and_get_my_booking(
     my_bookings = await authenticated_ac.get("/bookings/me")
     assert my_bookings.status_code == 200
     assert len(my_bookings.json()) == count
-
