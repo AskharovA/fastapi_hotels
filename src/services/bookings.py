@@ -19,3 +19,9 @@ class BookingService(BaseService):
         booking = await self.db.bookings.add_booking(_booking_data, hotel_id=hotel.id)
         await self.db.commit()
         return booking
+
+    async def get_all_bookings(self):
+        return await self.db.bookings.get_all()
+
+    async def get_user_bookings(self, user_id: int):
+        return await self.db.bookings.get_filtered(user_id=user_id)

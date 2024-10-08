@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from src.exceptions import AllRoomsAreBookedException, \
     RoomNotFoundException, AllRoomsAreBookedHTTPException, HotelNotFoundException, HotelNotFoundHTTPException, \
@@ -26,9 +26,9 @@ async def add_booking(db: DBDep, booking_data: BookingAddRequest, user_id: UserI
 
 @router.get("")
 async def get_all_bookings(db: DBDep):
-    return await db.bookings.get_all()
+    return await BookingService(db).get_all_bookings()
 
 
 @router.get("/me")
 async def get_user_bookings(db: DBDep, user_id: UserIdDep):
-    return await db.bookings.get_filtered(user_id=user_id)
+    return await BookingService(db).get_user_bookings(user_id)
