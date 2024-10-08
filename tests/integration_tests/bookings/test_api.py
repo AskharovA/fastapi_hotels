@@ -9,7 +9,7 @@ import pytest
         (1, "2024-08-03", "2024-08-12", 200),
         (1, "2024-08-04", "2024-08-13", 200),
         (1, "2024-08-05", "2024-08-14", 200),
-        (1, "2024-08-06", "2024-08-15", 401),
+        (1, "2024-08-06", "2024-08-15", 409),
         (1, "2024-08-17", "2024-08-25", 200),
     ],
 )
@@ -27,6 +27,9 @@ async def test_add_booking(
         assert isinstance(result, dict)
         assert result["status"] == "OK"
         assert "data" in result
+
+    if status_code == 409:
+        assert response.json()["detail"] == "Не осталось свободных номеров"
 
 
 @pytest.fixture(scope="module")
@@ -63,3 +66,4 @@ async def test_add_and_get_my_booking(
     my_bookings = await authenticated_ac.get("/bookings/me")
     assert my_bookings.status_code == 200
     assert len(my_bookings.json()) == count
+
