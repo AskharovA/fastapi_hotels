@@ -7,11 +7,7 @@ def custom_cache_decorator(expire=5):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            key = (
-                func.__name__
-                + ":"
-                + repr({k: v for k, v in kwargs.items() if k != "db"})
-            )
+            key = func.__name__ + ":" + repr({k: v for k, v in kwargs.items() if k != "db"})
 
             result = await redis_manager.get(key)
             if result:

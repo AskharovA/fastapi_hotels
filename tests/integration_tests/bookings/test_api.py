@@ -14,9 +14,7 @@ import pytest
         (1, "2024-08-17", "2024-08-16", 422),
     ],
 )
-async def test_add_booking(
-    room_id, date_from, date_to, status_code, db, authenticated_ac
-):
+async def test_add_booking(room_id, date_from, date_to, status_code, db, authenticated_ac):
     response = await authenticated_ac.post(
         "/bookings",
         json={"room_id": room_id, "date_from": date_from, "date_to": date_to},

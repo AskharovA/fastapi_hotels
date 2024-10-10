@@ -47,9 +47,7 @@ async def setup_database(check_test_mode):
 @pytest.fixture(scope="session", autouse=True)
 async def add_data(setup_database):
     with open("tests/mock_hotels.json", encoding="utf-8") as hotels_json:
-        hotels_data = [
-            HotelAdd.model_validate(hotel) for hotel in json.load(hotels_json)
-        ]
+        hotels_data = [HotelAdd.model_validate(hotel) for hotel in json.load(hotels_json)]
     with open("tests/mock_rooms.json", encoding="utf-8") as rooms_json:
         rooms_data = [RoomAdd.model_validate(room) for room in json.load(rooms_json)]
 

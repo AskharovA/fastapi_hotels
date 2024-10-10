@@ -23,7 +23,11 @@ async def get_hotels(
     date_to: date = Query(examples=["2024-10-15"]),
 ):
     hotels = await HotelService(db).get_filtered_by_time(
-        pagination, title, location, date_from, date_to,
+        pagination,
+        title,
+        location,
+        date_from,
+        date_to,
     )
     return {"status": "OK", "data": hotels}
 

@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
-from src.exceptions import ObjectNotFoundException, RoomNotFoundException
+from src.exceptions import RoomNotFoundException
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsDataWithRelsMapper
@@ -25,8 +25,7 @@ class RoomsRepository(BaseRepository):
         )
         result = await self.session.execute(query)
         return [
-            RoomsDataWithRelsMapper.map_to_domain_entity(model)
-            for model in result.scalars().all()
+            RoomsDataWithRelsMapper.map_to_domain_entity(model) for model in result.scalars().all()
         ]
 
     async def get_room_with_rels(self, hotel_id: int, room_id: int):

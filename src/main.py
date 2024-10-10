@@ -14,12 +14,12 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 logging.basicConfig(level=logging.DEBUG)
 
-from src.api.auth import router as router_users
-from src.api.hotels import router as router_hotels
-from src.api.rooms import router as router_rooms
-from src.api.bookings import router as router_bookings
-from src.api.facilities import router as router_facilities
-from src.init import redis_manager
+from src.api.auth import router as router_users  # noqa: E402
+from src.api.hotels import router as router_hotels  # noqa: E402
+from src.api.rooms import router as router_rooms  # noqa: E402
+from src.api.bookings import router as router_bookings  # noqa: E402
+from src.api.facilities import router as router_facilities  # noqa: E402
+from src.init import redis_manager  # noqa: E402
 
 
 @asynccontextmanager

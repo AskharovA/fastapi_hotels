@@ -12,9 +12,7 @@ class BookingService(BaseService):
         hotel = await HotelService(self.db).get_hotel_with_check(hotel_id=room.hotel_id)
         room_price: int = room.price
 
-        _booking_data = BookingAdd(
-            **booking_data.model_dump(), user_id=user_id, price=room_price
-        )
+        _booking_data = BookingAdd(**booking_data.model_dump(), user_id=user_id, price=room_price)
 
         booking = await self.db.bookings.add_booking(_booking_data, hotel_id=hotel.id)
         await self.db.commit()

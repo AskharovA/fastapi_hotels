@@ -1,18 +1,17 @@
 from datetime import date
 
-from src.exceptions import check_date_to_after_date_from, ObjectNotFoundException, HotelNotFoundException
+from src.exceptions import (
+    check_date_to_after_date_from,
+    ObjectNotFoundException,
+    HotelNotFoundException,
+)
 from src.schemas.hotels import HotelAdd, HotelPatch, Hotel
 from src.services.base import BaseService
 
 
 class HotelService(BaseService):
     async def get_filtered_by_time(
-            self,
-            pagination,
-            title: str | None,
-            location: str | None,
-            date_from: date,
-            date_to: date
+        self, pagination, title: str | None, location: str | None, date_from: date, date_to: date
     ):
         check_date_to_after_date_from(date_from, date_to)
         per_page = pagination.per_page or 5
@@ -37,7 +36,9 @@ class HotelService(BaseService):
         await self.db.hotels.edit(data, id=hotel_id)
         await self.db.commit()
 
-    async def edit_hotel_partially(self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False):
+    async def edit_hotel_partially(
+        self, hotel_id: int, data: HotelPatch, exclude_unset: bool = False
+    ):
         await self.db.hotels.edit(data, exclude_unset=exclude_unset, id=hotel_id)
         await self.db.commit()
 

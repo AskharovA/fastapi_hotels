@@ -1,8 +1,5 @@
-from asyncpg import UniqueViolationError
-from fastapi import HTTPException
 from pydantic import EmailStr
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 
 from src.repositories.base import BaseRepository
 from src.models.users import UsersOrm

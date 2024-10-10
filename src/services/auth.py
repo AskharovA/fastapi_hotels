@@ -5,8 +5,13 @@ from jwt import DecodeError
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import ObjectAlreadyExistsException, UserAlreadyExistsException, UserNotExistsException, \
-    IncorrectPasswordException, IncorrectTokenException
+from src.exceptions import (
+    ObjectAlreadyExistsException,
+    UserAlreadyExistsException,
+    UserNotExistsException,
+    IncorrectPasswordException,
+    IncorrectTokenException,
+)
 from src.schemas.users import UserAdd, UserRequestAdd
 from src.services.base import BaseService
 
@@ -55,8 +60,6 @@ class AuthService(BaseService):
     @staticmethod
     def decode_token(token: str) -> dict:
         try:
-            return jwt.decode(
-                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-            )
+            return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         except DecodeError:
             raise IncorrectTokenException
