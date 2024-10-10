@@ -5,7 +5,7 @@ stages:
 build-job:
   stage: build
   script:
-    - docker build -t booking-api-image
+    - docker build -t booking-api-image .
 
 deploy-job:
   stage: deploy
