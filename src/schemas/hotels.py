@@ -8,6 +8,7 @@ class HotelAdd(BaseModel):
 
 class Hotel(HotelAdd):
     id: int
+    images: list[str] | None = []
 
 
 class HotelPatch(BaseModel):

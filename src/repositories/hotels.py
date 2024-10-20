@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import select
 
+from src.models import HotelImagesOrm
 from src.models.hotels import HotelsOrm
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
@@ -30,7 +31,11 @@ class HotelsRepository(BaseRepository):
             .filter(RoomsOrm.id.in_(rooms_ids_to_get))
         )
 
-        query = select(HotelsOrm).filter(HotelsOrm.id.in_(hotels_ids_to_get))
+        query = (
+            select(HotelsOrm)
+            .filter(HotelsOrm.id.in_(hotels_ids_to_get))
+            .outerjoin(HotelImagesOrm, HotelImagesOrm.hotel_id == HotelsOrm.id)
+        )
 
         if title:
             query = query.filter(HotelsOrm.title.icontains(title.strip()))
