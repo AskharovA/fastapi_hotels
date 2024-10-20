@@ -3,6 +3,7 @@ from src.models.rooms import RoomsOrm
 from src.models.users import UsersOrm
 from src.models.bookings import BookingsOrm
 from src.models.facilities import FacilitiesOrm, RoomsFacilitiesOrm
+from src.models.images import HotelImagesOrm
 
 __all__ = [
     "HotelsOrm",
@@ -11,4 +12,5 @@ __all__ = [
     "BookingsOrm",
     "FacilitiesOrm",
     "RoomsFacilitiesOrm",
+    "HotelImagesOrm",
 ]

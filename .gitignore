@@ -4,3 +4,5 @@ __pycache__
 .env
 .test.env
 celerybeat-schedule.db
+.pytest_cache
+.ruff_cache

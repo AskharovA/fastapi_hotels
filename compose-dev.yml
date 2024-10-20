@@ -1,0 +1,28 @@
+services:
+  booking_back_service:
+    image: booking-api-dev:latest
+    container_name: booking_back
+    networks:
+      - myNetwork
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app/
+
+  booking_celery_worker_service:
+    image: booking-api-dev:latest
+    container_name: booking_celery_worker
+    command: "celery --app=src.tasks.celery_app:celery_instance worker -l INFO"
+    networks:
+      - myNetwork
+#
+#  booking_celery_beat_service:
+#    image: booking-api-image:latest
+#    container_name: booking_celery_beat
+#    command: "celery --app=src.tasks.celery_app:celery_instance beat -l INFO"
+#    networks:
+#      - myNetwork
+
+networks:
+  myNetwork:
+    external: true
