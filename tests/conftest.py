@@ -1,4 +1,5 @@
 # ruff: noqa: E402
+from typing import Any, AsyncGenerator
 from unittest import mock
 
 mock.patch("fastapi_cache.decorator.cache", lambda *a, **kw: lambda f: f).start()
@@ -29,7 +30,7 @@ async def get_db_null_pool():
 
 
 @pytest.fixture(scope="function")
-async def db() -> DBManager:
+async def db() -> AsyncGenerator[DBManager, Any]:
     async for db in get_db_null_pool():
         yield db
 
@@ -58,18 +59,18 @@ async def add_data(setup_database):
 
 
 @pytest.fixture(scope="session")
-async def ac() -> AsyncClient:
+async def ac() -> AsyncGenerator[AsyncClient, Any]:
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def register_user(ac, add_data):
+async def register_user(ac: AsyncClient, add_data):
     await ac.post("/auth/register", json={"email": "kot@pes.com", "password": "1234"})
 
 
 @pytest.fixture(scope="session")
-async def authenticated_ac(register_user, ac):
+async def authenticated_ac(register_user, ac: AsyncClient):
     await ac.post("/auth/login", json={"email": "kot@pes.com", "password": "1234"})
     assert ac.cookies["access_token"]
     yield ac

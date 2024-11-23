@@ -1,6 +1,6 @@
 from datetime import date
+from typing import Sequence
 
-from pydantic import BaseModel
 from sqlalchemy import select
 
 from src.exceptions import AllRoomsAreBookedException
@@ -9,6 +9,7 @@ from src.models.bookings import BookingsOrm
 from src.repositories.mappers.mappers import BookingDataMapper
 
 from src.repositories.utils import rooms_ids_for_booking
+from src.schemas.bookings import BookingAdd
 
 
 class BookingsRepository(BaseRepository):
@@ -20,7 +21,7 @@ class BookingsRepository(BaseRepository):
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(booking) for booking in result.scalars().all()]
 
-    async def add_booking(self, data: BaseModel, hotel_id):
+    async def add_booking(self, data: BookingAdd, hotel_id):
         result = await self.session.execute(
             rooms_ids_for_booking(
                 date_from=data.date_from,
@@ -28,7 +29,7 @@ class BookingsRepository(BaseRepository):
                 hotel_id=hotel_id,
             )
         )
-        rooms_ids: list[int] = result.scalars().all()
+        rooms_ids: Sequence[int] = result.scalars().all()
         if data.room_id not in rooms_ids:
             raise AllRoomsAreBookedException
 

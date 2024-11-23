@@ -25,9 +25,9 @@ from src.init import redis_manager  # noqa: E402
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # noqa
     await redis_manager.connect()
-    FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
+    FastAPICache.init(RedisBackend(redis_manager.redis_), prefix="fastapi-cache")
     logging.info("FastAPI cache initialized")
     yield
     await redis_manager.close()
@@ -43,7 +43,7 @@ app.include_router(router_facilities)
 app.include_router(router_images)
 
 
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:8001"])
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:8001"])  # noqa
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True, host="0.0.0.0")

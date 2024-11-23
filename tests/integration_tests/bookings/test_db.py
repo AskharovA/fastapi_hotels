@@ -1,10 +1,11 @@
 from datetime import date
-from src.schemas.bookings import BookingAdd
+from src.schemas.bookings import BookingAdd, Booking
+from src.utils.db_manager import DBManager
 
 
-async def test_booking_crud(db):
-    user_id = (await db.users.get_all())[0].id
-    room_id = (await db.rooms.get_all())[0].id
+async def test_booking_crud(db: DBManager):
+    user_id = (await db.users.get_all())[0].id  # type: ignore
+    room_id = (await db.rooms.get_all())[0].id  # type: ignore
 
     booking_data = BookingAdd(
         user_id=user_id,
@@ -14,7 +15,7 @@ async def test_booking_crud(db):
         price=100,
     )
     result = await db.bookings.add(booking_data)
-    booking = await db.bookings.get_one_or_none(id=result.id)
+    booking: Booking | None = await db.bookings.get_one_or_none(id=result.id)
 
     assert booking is not None
     assert booking.id == result.id
@@ -27,10 +28,10 @@ async def test_booking_crud(db):
     booking_data.price = 5000
     await db.bookings.edit(booking_data, id=booking.id)
 
-    booking = await db.bookings.get_one_or_none(id=booking.id)
+    booking: Booking | None = await db.bookings.get_one_or_none(id=booking.id)
     assert booking is not None
     assert booking.price == 5000
 
     await db.bookings.delete()
-    booking = await db.bookings.get_one_or_none(id=result.id)
+    booking: Booking | None = await db.bookings.get_one_or_none(id=result.id)
     assert booking is None

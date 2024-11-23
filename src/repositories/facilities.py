@@ -16,14 +16,13 @@ class RoomsFacilitiesRepository(BaseRepository):
     schema = RoomFacility
 
     async def edit_room_facilities(self, room_id: int, new_facilities: list[int]) -> None:
-        room_facilities = await self.session.execute(
+        room_facilities_query_result = await self.session.execute(
             select(self.model.facility_id).filter_by(room_id=room_id)
         )
-        room_facilities = {row[0] for row in room_facilities}
-        new_facilities = set(new_facilities)
+        room_facilities: set[int] = {row[0] for row in room_facilities_query_result}
 
-        to_delete = room_facilities - new_facilities
-        to_add = new_facilities - room_facilities
+        to_delete: list[int] = list(room_facilities - set(new_facilities))
+        to_add: list[int] = list(set(new_facilities) - room_facilities)
 
         if to_delete:
             await self.session.execute(
