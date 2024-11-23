@@ -45,11 +45,12 @@ The primary goal of this project is to study and practice modern asynchronous we
   - Type checking with **pyright**.
 - Fully typed Python code.
 
-# Create Docker network
+#### Create Docker Network
 ```bash
 docker network create myNetwork
 ```
 
+#### DB
 ```bash
 docker run --name booking_db \
     -p 5432:5432 \
@@ -61,6 +62,7 @@ docker run --name booking_db \
     -d postgres:16-bookworm
 ```
 
+#### Redis
 ```bash
 docker run --name booking_cache \
     -p 6379:6379 \
@@ -68,6 +70,7 @@ docker run --name booking_cache \
     -d redis:7.4
 ```
 
+#### NGINX
 ```bash
 docker run --name booking_nginx \
     --volume ./nginx.conf:/etc/nginx/nginx.conf \
