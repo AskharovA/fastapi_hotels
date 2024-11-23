@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
+
+    ACCESS_TOKEN_KEY: str
+    REFRESH_TOKEN_KEY: str
 
     @property
     def db_url(self):

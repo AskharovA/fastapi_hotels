@@ -72,5 +72,6 @@ async def register_user(ac: AsyncClient, add_data):
 @pytest.fixture(scope="session")
 async def authenticated_ac(register_user, ac: AsyncClient):
     await ac.post("/auth/login", json={"email": "kot@pes.com", "password": "1234"})
-    assert ac.cookies["access_token"]
+    assert ac.cookies["BOOKING_ACCESS_TOKEN"]
+    assert ac.cookies["BOOKING_REFRESH_TOKEN"]
     yield ac

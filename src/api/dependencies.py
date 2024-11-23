@@ -1,12 +1,15 @@
 from typing import Annotated
 
-from fastapi import Query, Depends, Request, HTTPException
+import jwt
+from fastapi import Query, Depends, Request, Response, HTTPException, status
 from pydantic import BaseModel
 
 from src.database import async_session_maker
 from src.exceptions import IncorrectTokenException, IncorrectTokenHTTPException
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
+
+from src.config import settings
 
 
 class PaginationParams(BaseModel):
@@ -17,14 +20,27 @@ class PaginationParams(BaseModel):
 PaginationDep = Annotated[PaginationParams, Depends()]
 
 
-def get_token(request: Request):
-    token = request.cookies.get("access_token", None)
+async def renew_access_token_if_needed(request: Request, response: Response) -> str:  # TODO CREATE TWO MODULES
+    token = request.cookies.get(settings.ACCESS_TOKEN_KEY)
     if not token:
-        raise HTTPException(status_code=401, detail="Вы не предоставили токен доступа")
-    return token
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No token")  # TODO
+    try:
+        AuthService.decode_token(token)
+        return token
+    except jwt.ExpiredSignatureError:  # TODO CUSTOM EXCEPTIONS
+        refresh_token = request.cookies.get(settings.REFRESH_TOKEN_KEY, None)
+        if not refresh_token:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No token")  # TODO
+
+        try:
+            new_access_token = await AuthService().refresh_access_token(refresh_token)
+            response.set_cookie(key=settings.ACCESS_TOKEN_KEY, value=new_access_token)
+            return new_access_token
+        except jwt.InvalidTokenError:  # TODO CUSTOM EXCEPTIONS
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="No token")  # TODO
 
 
-def get_current_user_id(token: str = Depends(get_token)) -> int:
+def get_current_user_id(token: str = Depends(renew_access_token_if_needed)) -> int:
     try:
         data = AuthService().decode_token(token)
     except IncorrectTokenException:

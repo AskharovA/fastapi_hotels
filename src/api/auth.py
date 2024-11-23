@@ -13,6 +13,8 @@ from src.schemas.users import UserRequestAdd
 from src.services.auth import AuthService
 from src.api.dependencies import DBDep
 
+from src.config import settings
+
 router = APIRouter(prefix="/auth", tags=["Авторизация и Аутентификация"])
 
 
@@ -28,11 +30,12 @@ async def register(data: UserRequestAdd, db: DBDep):
 @router.post("/login")
 async def login_user(data: UserRequestAdd, response: Response, db: DBDep):
     try:
-        access_token = await AuthService(db).login_user(data)
+        tokens: dict[str, str] = await AuthService(db).login_user(data)
     except (UserNotExistsException, IncorrectPasswordException):
         raise IncorrectLoginOrPasswordHTTPException
-    response.set_cookie("access_token", access_token)
-    return {"access_token": access_token}
+    response.set_cookie(settings.ACCESS_TOKEN_KEY, tokens["access_token"])
+    response.set_cookie(settings.REFRESH_TOKEN_KEY, tokens["refresh_token"])
+    return {"access_token": tokens["access_token"], "refresh_token": tokens["refresh_token"]}
 
 
 @router.get("/me")
@@ -42,5 +45,6 @@ async def get_me(user_id: UserIdDep, db: DBDep):
 
 @router.delete("/logout")
 async def logout(response: Response):
-    response.delete_cookie("access_token")
+    response.delete_cookie(settings.ACCESS_TOKEN_KEY)
+    response.delete_cookie(settings.REFRESH_TOKEN_KEY)
     return {"status": "OK"}

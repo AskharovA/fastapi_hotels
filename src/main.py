@@ -46,4 +46,4 @@ app.include_router(router_images)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:8001"])  # noqa
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True, host="0.0.0.0")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)

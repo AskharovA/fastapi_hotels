@@ -1,4 +1,5 @@
 import pytest
+from httpx import AsyncClient
 
 
 @pytest.mark.parametrize(
@@ -11,7 +12,7 @@ import pytest
         ("user4@gmail.com", "88768767", 200),
     ],
 )
-async def test_auth(email, password, status_code, ac):
+async def test_auth(email, password, status_code, ac: AsyncClient):
     user_data = {"email": email, "password": password}
 
     response = await ac.post("/auth/register", json=user_data)
@@ -21,7 +22,8 @@ async def test_auth(email, password, status_code, ac):
         return
 
     await ac.post("/auth/login", json=user_data)
-    assert ac.cookies["access_token"]
+    assert ac.cookies["BOOKING_ACCESS_TOKEN"]
+    assert ac.cookies["BOOKING_REFRESH_TOKEN"]
 
     response = await ac.get("/auth/me")
     user_data = response.json()
@@ -32,7 +34,7 @@ async def test_auth(email, password, status_code, ac):
 
     response = await ac.delete("/auth/logout")
     assert response.json()["status"] == "OK"
-    assert ac.cookies.get("access_token", None) is None
+    assert ac.cookies.get("BOOKING_ACCESS_TOKEN", None) is None
 
     response = await ac.get("/auth/me")
     assert response.status_code == 401
