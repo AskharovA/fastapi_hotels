@@ -32,6 +32,8 @@ class RoomService(BaseService):
 
         _room_data = RoomAdd(hotel_id=hotel_id, **data.model_dump())
         room = await self.db.rooms.add(_room_data)
+        if room is None:
+            raise  # TODO
 
         rooms_facilities_data = [
             RoomFacilityAdd(room_id=room.id, facility_id=f_id) for f_id in data.facilities_ids
@@ -46,7 +48,7 @@ class RoomService(BaseService):
         _room_data = RoomAdd(hotel_id=hotel_id, **room_data.model_dump())
         await self.db.rooms.edit(_room_data, id=room_id, hotel_id=hotel_id)
         await self.db.rooms_facilities.edit_room_facilities(
-            room_id=room_id, new_facilities=room_data.facilities_ids
+            room_id=room_id, facilities_ids=room_data.facilities_ids
         )
         await self.db.commit()
 
@@ -68,7 +70,7 @@ class RoomService(BaseService):
         await self.db.rooms.delete(id=room_id, hotel_id=hotel_id)
         await self.db.commit()
 
-    async def get_room_with_check(self, room_id: int) -> Room:
+    async def get_room_with_check(self, room_id: int):
         try:
             return await self.db.rooms.get_one(id=room_id)
         except ObjectNotFoundException:

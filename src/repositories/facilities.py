@@ -15,19 +15,19 @@ class RoomsFacilitiesRepository(BaseRepository):
     model = RoomsFacilitiesOrm
     schema = RoomFacility
 
-    async def edit_room_facilities(self, room_id: int, new_facilities: list[int]) -> None:
+    async def edit_room_facilities(self, room_id: int, facilities_ids: list[int]) -> None:
         room_facilities_query_result = await self.session.execute(
-            select(self.model.facility_id).filter_by(room_id=room_id)
+            select(self.model.facility_id).filter_by(room_id=room_id)  # type: ignore
         )
         room_facilities: set[int] = {row[0] for row in room_facilities_query_result}
 
-        to_delete: list[int] = list(room_facilities - set(new_facilities))
-        to_add: list[int] = list(set(new_facilities) - room_facilities)
+        to_delete: list[int] = list(room_facilities - set(facilities_ids))
+        to_add: list[int] = list(set(facilities_ids) - room_facilities)
 
         if to_delete:
             await self.session.execute(
                 delete(self.model)
-                .where(self.model.facility_id.in_(to_delete))
+                .where(self.model.facility_id.in_(to_delete))  # type: ignore
                 .filter_by(room_id=room_id)
             )
         if to_add:

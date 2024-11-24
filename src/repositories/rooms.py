@@ -20,8 +20,8 @@ class RoomsRepository(BaseRepository):
 
         query = (
             select(self.model)
-            .options(selectinload(self.model.facilities))
-            .filter(self.model.id.in_(rooms_ids_to_get))
+            .options(selectinload(self.model.facilities))  # type: ignore
+            .filter(self.model.id.in_(rooms_ids_to_get))  # type: ignore
         )
         result = await self.session.execute(query)
         return [
@@ -31,7 +31,7 @@ class RoomsRepository(BaseRepository):
     async def get_room_with_rels(self, hotel_id: int, room_id: int):
         room = await self.session.execute(
             select(self.model)
-            .options(selectinload(self.model.facilities))
+            .options(selectinload(self.model.facilities))  # type: ignore
             .filter_by(id=room_id, hotel_id=hotel_id)
         )
         try:

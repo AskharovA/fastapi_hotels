@@ -1,6 +1,7 @@
 stages:
   - build
   - lint_format
+  - pyright
   - migrations
   - test
   - deploy
@@ -22,6 +23,11 @@ Format:
   stage: lint_format
   script:
     - docker run --rm --network myNetwork booking-api-image ruff format --check
+
+Pyright:
+  stage: pyright
+  script:
+    - docker run --rm --network myNetwork booking-api-image pyright
 
 Migrations:
   stage: migrations

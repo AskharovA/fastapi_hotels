@@ -13,22 +13,22 @@ from src.repositories.mappers.base import DataMapper
 
 
 class BaseRepository:
-    model = type[Base]
+    model: type[Base]
     mapper: type[DataMapper]
     session: AsyncSession
 
     def __init__(self, session) -> None:
         self.session = session
 
-    async def get_filtered(self, *filter_, **filter_by) -> list[BaseModel | Any]:
+    async def get_filtered(self, *filter_, **filter_by) -> list[BaseModel]:
         query = select(self.model).filter(*filter_).filter_by(**filter_by)
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_all(self, *args, **kwargs) -> list[BaseModel | Any]:
+    async def get_all(self, *args, **kwargs) -> list[BaseModel]:
         return await self.get_filtered()
 
-    async def get_one_or_none(self, **filter_by) -> BaseModel | None | Any:
+    async def get_one_or_none(self, **filter_by) -> BaseModel | None:
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         model = result.scalars().one_or_none()
@@ -36,13 +36,13 @@ class BaseRepository:
             return None
         return self.mapper.map_to_domain_entity(model)
 
-    async def get_one(self, **filter_by) -> BaseModel:
+    async def get_one(self, **filter_by) -> Any:
         result = await self.get_one_or_none(**filter_by)
         if result is None:
             raise ObjectNotFoundException
         return result
 
-    async def add(self, data: BaseModel) -> BaseModel | Any:
+    async def add(self, data: BaseModel) -> Any:
         try:
             add_object_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
             new_object = await self.session.execute(add_object_stmt)

@@ -10,7 +10,7 @@ router = APIRouter(prefix="/images", tags=["Изображения"])
 @router.post("")
 async def upload_hotel_image(hotel_id: int, file: UploadFile, background_tasks: BackgroundTasks, db: DBDep):
     image_path = f"images/hotels/{file.filename}"
-    ImageService().upload_image(file, background_tasks, image_path)
+    ImageService.upload_image(file, background_tasks, image_path)
     image_data = HotelImageAdd(image_path=image_path, hotel_id=hotel_id)
     await db.hotel_images.add(image_data)
     await db.commit()

@@ -33,7 +33,7 @@ async def renew_access_token_if_needed(request: Request, response: Response) -> 
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No token")  # TODO
 
         try:
-            new_access_token = await AuthService().refresh_access_token(refresh_token)
+            new_access_token = await AuthService.refresh_access_token(refresh_token)
             response.set_cookie(key=settings.ACCESS_TOKEN_KEY, value=new_access_token)
             return new_access_token
         except jwt.InvalidTokenError:  # TODO CUSTOM EXCEPTIONS
@@ -42,7 +42,7 @@ async def renew_access_token_if_needed(request: Request, response: Response) -> 
 
 def get_current_user_id(token: str = Depends(renew_access_token_if_needed)) -> int:
     try:
-        data = AuthService().decode_token(token)
+        data = AuthService.decode_token(token)
     except IncorrectTokenException:
         raise IncorrectTokenHTTPException
     return data["user_id"]

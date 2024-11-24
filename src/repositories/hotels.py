@@ -18,8 +18,8 @@ class HotelsRepository(BaseRepository):
         self,
         date_from: date,
         date_to: date,
-        title: str,
-        location: str,
+        title: str | None,
+        location: str | None,
         limit: int,
         offset: int,
     ):

@@ -30,9 +30,9 @@ class AuthService(BaseService):
         new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
         try:
             await self.db.users.add(new_user_data)
-        except ObjectAlreadyExistsException:
-            raise UserAlreadyExistsException
-        await self.db.commit()
+            await self.db.commit()
+        except ObjectAlreadyExistsException as ex:
+            raise UserAlreadyExistsException from ex
 
     async def login_user(self, data: UserRequestAdd):
         user = await self.db.users.get_user_with_hashed_password(email=data.email)
@@ -52,19 +52,19 @@ class AuthService(BaseService):
         encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
         return encoded_jwt
 
-    def create_access_token(self, data: dict) -> str:
-        return self.create_token(token_type=TokenType.ACCESS_TOKEN, data=data)
+    @classmethod
+    def create_access_token(cls, data: dict) -> str:
+        return cls.create_token(token_type=TokenType.ACCESS_TOKEN, data=data)
 
-    def create_refresh_token(self, data: dict) -> str:
-        return self.create_token(token_type=TokenType.REFRESH_TOKEN, data=data)
+    @classmethod
+    def create_refresh_token(cls, data: dict) -> str:
+        return cls.create_token(token_type=TokenType.REFRESH_TOKEN, data=data)
 
-    async def refresh_access_token(self, refresh_token: str) -> str:
-        payload = self.decode_token(refresh_token)
-        user_id: str = payload.get("user_id")
-        if not user_id:
-            raise  # TODO Exception
-
-        new_access_token = self.create_access_token(data={"user_id": user_id})
+    @classmethod
+    async def refresh_access_token(cls, refresh_token: str) -> str:
+        payload = cls.decode_token(refresh_token)
+        user_id: str | None = payload.get("user_id", None)
+        new_access_token = cls.create_access_token(data={"user_id": user_id})
         return new_access_token
 
     @classmethod

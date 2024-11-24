@@ -1,0 +1,4 @@
+{
+  "include": ["src/**/*.py"],
+  "exclude": ["tests", "src/migrations"]
+}
