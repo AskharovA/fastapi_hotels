@@ -45,6 +45,8 @@ The primary goal of this project is to study and practice modern asynchronous we
   - Type checking with **pyright**.
 - Fully typed Python code.
 
+## Docker
+
 #### Create Docker Network
 ```bash
 docker network create myNetwork
@@ -78,4 +80,37 @@ docker run --name booking_nginx \
     --volume /var/lib/letsencrypt:/var/lib/letsencrypt \
     --network=myNetwork \
     --rm -p 443:443 -d nginx
+```
+## Gitlab Runner
+
+#### Run
+```bash
+docker run -d --name gitlab-runner --restart always \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  gitlab/gitlab-runner:alpine
+```
+
+#### Register runner
+```bash
+docker run --rm -it \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    gitlab/gitlab-runner:alpine register
+```
+
+#### Update config
+`nano /srv/gitlab-runner/config/config.toml`
+or
+`vim /srv/gitlab-runner/config/config.toml`
+
+Change `volumes = ["/cache"]` to
+```toml
+volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+```
+
+#### Solving other issues
+```bash
+sudo groupadd docker
+sudo usermod -aG docker $(whoami)
+sudo service docker start
 ```
