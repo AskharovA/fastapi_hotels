@@ -19,7 +19,7 @@ from src.services.base import BaseService
 
 class TokenType(Enum):
     ACCESS_TOKEN = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    REFRESH_TOKEN = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    REFRESH_TOKEN = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
 
 
 class AuthService(BaseService):
